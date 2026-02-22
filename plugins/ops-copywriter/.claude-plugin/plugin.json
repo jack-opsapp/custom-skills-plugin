@@ -1,0 +1,8 @@
+{
+  "name": "ops-copywriter",
+  "version": "1.0.0",
+  "description": "OPS brand copywriting skill - high-conversion, field-first copy that channels discipline, working-class pride, and first-principles clarity.",
+  "skills": {
+    "auto_discover": true
+  }
+}

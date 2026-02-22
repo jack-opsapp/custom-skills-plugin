@@ -14,6 +14,25 @@
       },
       "source": "./plugins/custom-skills",
       "category": "development"
+    },
+    {
+      "name": "ops-copywriter",
+      "description": "OPS brand copywriting skill - high-conversion, field-first copy that channels discipline, working-class pride, and first-principles clarity.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Custom"
+      },
+      "source": "./plugins/ops-copywriter",
+      "category": "development"
+    },
+    {
+      "name": "slate",
+      "description": "Bidirectional Slate integration — automatic todo sync, progress tracking, and testing checkpoints",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/jack-opsapp/slate-plugin.git"
+      },
+      "category": "productivity"
     }
   ]
 }
