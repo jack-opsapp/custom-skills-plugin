@@ -1,0 +1,10 @@
+{
+  "name": "custom-skills",
+  "description": "Custom skills: wireframe, mobile-ux-design, saas-legal-docs, audit-design-system, design-from-references, app-platform-converter, last30days, interface-design, ui-ux-pro-max, elite-animations",
+  "version": "1.0.0",
+  "author": {
+    "name": "Custom"
+  },
+  "license": "MIT",
+  "keywords": ["skills", "design", "ui", "ux", "wireframe", "legal", "research"]
+}
