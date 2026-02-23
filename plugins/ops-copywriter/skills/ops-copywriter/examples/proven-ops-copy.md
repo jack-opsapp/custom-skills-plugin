@@ -171,6 +171,106 @@ Built by people who've swung hammers, not just keyboards.
 
 ---
 
+## Website - Starburst Node Captions
+
+Philosophical one-liners that appear on hover over radial starburst nodes on the OPS website. Styled after xAI's cosmic question nodes, but calibrated to OPS values: discipline, ownership, legacy, craftsmanship, and quiet confidence.
+
+**The energy:** Not sales copy. Not motivational posters. Thought-provoking, abstract, calm conviction. The feeling of a quiet "fuck yeah" -- a knowing nod from someone who just found their people.
+
+**Registers that work:**
+- Paradoxes and reframes ("discipline is freedom", "the hard way is the shortcut")
+- Cause-effect truths ("what you tolerate you teach", "what you ignore grows")
+- Existential questions ("what outlives you", "does character compound")
+- Chain logic ("slow is smooth, smooth is fast", "earn it, own it, pass it down")
+- Ultra-minimal commands ("be the proof", "good.", "one more")
+- Poetic contrasts ("rough hands, clean work", "trust in drops, lost in floods")
+- Famous wisdom compressed ("do nothing which is of no use", "per aspera ad astra")
+- Builder/founder energy ("move fast and break things", "just build", "ideas are cheap")
+
+**Full caption set (79):**
+
+1. build something that lasts
+2. what would you build
+3. discipline is freedom
+4. what survives the rest
+5. the cost of doing nothing
+6. experience becomes instinct
+7. plans are not promises
+8. earn the next hour
+9. the work speaks
+10. what outlives you
+11. what you tolerate you teach
+12. be what you needed
+13. patience is a position
+14. knowledge dies unshared
+15. the weight of a decision
+16. no decision is the wrong decision
+17. conviction before consensus
+18. reputation arrives first
+19. the standard outlives the setter
+20. does character compound
+21. be the proof
+22. the cost of comfort
+23. what you ignore grows
+24. knowing is not doing
+25. slow is smooth, smooth is fast
+26. hard choices, easy life
+27. first in, last out
+28. show up, shut up, step up
+29. raise the floor, the ceiling follows
+30. the few carry the many
+31. rough hands, clean work
+32. you fall to your training
+33. tight plan, loose grip
+34. pressure makes, comfort breaks
+35. practice private, perform public
+36. earn it, own it, pass it down
+37. the hard way is the shortcut
+38. trust in drops, lost in floods
+39. what you reward you repeat
+40. scars know more than skin
+41. default to action
+42. find the why, the how follows
+43. own the outcome
+44. listen first, speak last
+45. learn it, earn it, teach it
+46. ambition without ego
+47. iron sharpens iron
+48. move fast and break things
+49. iterate, iterate, iterate
+50. relentless action
+51. what you build in silence speaks loudest
+52. don't talk about it, be about it
+53. do nothing which is of no use
+54. perceive what cannot be seen
+55. it is not the critic who counts
+56. dare mighty things
+57. not all who wander are lost
+58. good.
+59. fortune favors the bold
+60. the only way out is through
+61. the only easy day was yesterday
+62. improvise, adapt, overcome
+63. burn the ships
+64. just build
+65. do hard things
+66. start ugly, finish clean
+67. nothing changes until you do
+68. leave it better
+69. adapt or die
+70. one more
+71. nothing owes you anything
+72. just do it
+73. ideas are cheap
+74. create the standard
+75. if not now, when
+76. per aspera ad astra
+77. make it count
+78. plan the work, work the plan
+79. something from nothing
+
+---
+
 ## Voice Calibration Notes
 
 Study these patterns in the copy above:
