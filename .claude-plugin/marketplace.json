@@ -26,15 +26,6 @@
       "category": "development"
     },
     {
-      "name": "slate",
-      "description": "Bidirectional Slate integration — automatic todo sync, progress tracking, and testing checkpoints",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/jack-opsapp/slate-plugin.git"
-      },
-      "category": "productivity"
-    },
-    {
       "name": "ops-course-studio",
       "description": "Course production studio for ops-learn. Commands for creating courses, lessons, assessments, and interactive tools. Skills for curriculum research, copywriting, media direction, and assessment authoring.",
       "version": "1.0.0",
