@@ -1,0 +1,10 @@
+{
+  "name": "ops-course-studio",
+  "version": "1.0.0",
+  "description": "Course production studio for ops-learn. Commands for creating courses, lessons, assessments, and interactive tools. Skills for curriculum research, copywriting, media direction, and assessment authoring.",
+  "author": {
+    "name": "Jackson Sweet"
+  },
+  "license": "MIT",
+  "keywords": ["ops-learn", "course-creation", "lms", "assessments", "curriculum"]
+}

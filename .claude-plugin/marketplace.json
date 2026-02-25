@@ -33,6 +33,16 @@
         "url": "https://github.com/jack-opsapp/slate-plugin.git"
       },
       "category": "productivity"
+    },
+    {
+      "name": "ops-course-studio",
+      "description": "Course production studio for ops-learn. Commands for creating courses, lessons, assessments, and interactive tools. Skills for curriculum research, copywriting, media direction, and assessment authoring.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jackson Sweet"
+      },
+      "source": "./plugins/ops-course-studio",
+      "category": "development"
     }
   ]
 }
