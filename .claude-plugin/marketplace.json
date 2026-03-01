@@ -34,6 +34,16 @@
       },
       "source": "./plugins/ops-course-studio",
       "category": "development"
+    },
+    {
+      "name": "tutorial-studio",
+      "description": "Tutorial production studio for designing, auditing, and building high-conversion onboarding flows. Analyzes codebases, designs phase-by-phase tutorial flows, and generates implementation code for iOS (SwiftUI) and web (React/Next.js).",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jackson Sweet"
+      },
+      "source": "./plugins/tutorial-studio",
+      "category": "development"
     }
   ]
 }
