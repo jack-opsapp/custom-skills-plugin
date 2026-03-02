@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Check if the Bash command that just executed was a git commit (the command contains 'git commit' and the tool succeeded). If YES: respond with a systemMessage instructing Claude to spawn the new-testament:bible-updater agent in the background to update the software bible based on the commit diff. If NOT a git commit: respond with nothing.",
+            "prompt": "Does this Bash command contain the literal string 'git commit'? (Not git status, git add, git log, git diff, or any other command — ONLY 'git commit'.) If YES and the tool succeeded: return a systemMessage telling Claude to spawn the new-testament:bible-updater agent in the background to update the software bible. If NO: respond ONLY with the word 'approve' — no explanation, no systemMessage, no other text.",
             "timeout": 10
           }
         ]
