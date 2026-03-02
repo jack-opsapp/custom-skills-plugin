@@ -1,0 +1,10 @@
+{
+  "name": "new-testament",
+  "version": "1.0.0",
+  "description": "Zero-touch software bible maintenance. Automatically creates and keeps a comprehensive project reference up to date on every commit. Covers architecture, features, data models, APIs, design system, deployment, ecosystem, and dependencies.",
+  "author": {
+    "name": "OPS LTD"
+  },
+  "license": "MIT",
+  "keywords": ["documentation", "software-bible", "auto-docs", "project-reference"]
+}

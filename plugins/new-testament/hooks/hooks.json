@@ -1,0 +1,17 @@
+{
+  "description": "Detects git commits and triggers software bible updates via sonnet agent",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if the Bash command that just executed was a git commit (the command contains 'git commit' and the tool succeeded). If YES: respond with a systemMessage instructing Claude to spawn the new-testament:bible-updater agent in the background to update the software bible based on the commit diff. If NOT a git commit: respond with nothing.",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
