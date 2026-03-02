@@ -44,6 +44,16 @@
       },
       "source": "./plugins/tutorial-studio",
       "category": "development"
+    },
+    {
+      "name": "new-testament",
+      "description": "Zero-touch software bible maintenance. Automatically creates and keeps a comprehensive project reference up to date on every commit. Covers architecture, features, data models, APIs, design system, deployment, ecosystem, and dependencies.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jackson Sweet"
+      },
+      "source": "./plugins/new-testament",
+      "category": "development"
     }
   ]
 }
