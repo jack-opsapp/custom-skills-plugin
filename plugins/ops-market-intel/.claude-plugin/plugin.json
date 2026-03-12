@@ -1,0 +1,10 @@
+{
+  "name": "ops-market-intel",
+  "version": "0.1.0",
+  "description": "Competitive intelligence and SEO research toolkit for OPS — scan competitors, research keywords, audit copy, and generate content briefs for the field service management market.",
+  "author": {
+    "name": "Jack",
+    "email": "canprojack@gmail.com"
+  },
+  "keywords": ["seo", "competitor-analysis", "market-research", "content-strategy", "field-service-management"]
+}

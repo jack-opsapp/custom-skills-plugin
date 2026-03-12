@@ -54,6 +54,16 @@
       },
       "source": "./plugins/new-testament",
       "category": "development"
+    },
+    {
+      "name": "ops-market-intel",
+      "description": "Competitive intelligence and SEO research toolkit for OPS. Scan competitor websites, research high-intent keywords, audit copy against positioning principles, and generate content briefs for the field service management market.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jackson Sweet"
+      },
+      "source": "./plugins/ops-market-intel",
+      "category": "development"
     }
   ]
 }
