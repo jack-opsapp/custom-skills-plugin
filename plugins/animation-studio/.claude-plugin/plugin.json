@@ -1,0 +1,15 @@
+{
+  "name": "animation-studio",
+  "version": "1.0.0",
+  "description": "Industry-leading animation plugin — web and iOS. Decision engine, brand motion identity, interactive scenes, data visualization, marketing heroes, haptic design. The single authority on animation.",
+  "author": {
+    "name": "Jackson Sweet"
+  },
+  "license": "MIT",
+  "keywords": [
+    "animation", "motion", "haptics", "interactive", "canvas",
+    "webgl", "three.js", "framer-motion", "gsap", "swiftui",
+    "core-animation", "metal", "particles", "data-visualization",
+    "tutorial", "marketing", "hero", "scroll", "3d"
+  ]
+}
