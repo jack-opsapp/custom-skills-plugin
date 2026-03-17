@@ -64,6 +64,16 @@
       },
       "source": "./plugins/ops-market-intel",
       "category": "development"
+    },
+    {
+      "name": "animation-studio",
+      "description": "Industry-leading animation plugin — web and iOS. Decision engine, brand motion identity, interactive scenes, data visualization, marketing heroes, haptic design. 6 skills, 72 files, 30k+ lines.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jackson Sweet"
+      },
+      "source": "./plugins/animation-studio",
+      "category": "development"
     }
   ]
 }
