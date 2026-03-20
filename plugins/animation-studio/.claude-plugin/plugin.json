@@ -1,7 +1,7 @@
 {
   "name": "animation-studio",
   "version": "1.0.0",
-  "description": "Industry-leading animation plugin — web and iOS. Decision engine, brand motion identity, interactive scenes, data visualization, marketing heroes, haptic design. The single authority on animation.",
+  "description": "Industry-leading animation plugin — web and iOS. Decision engine, brand motion identity, photorealistic 3D rendering, interactive scenes, data visualization, marketing heroes, haptic design. The single authority on animation and visual fidelity.",
   "author": {
     "name": "Jackson Sweet"
   },
@@ -10,6 +10,7 @@
     "animation", "motion", "haptics", "interactive", "canvas",
     "webgl", "three.js", "framer-motion", "gsap", "swiftui",
     "core-animation", "metal", "particles", "data-visualization",
-    "tutorial", "marketing", "hero", "scroll", "3d"
+    "tutorial", "marketing", "hero", "scroll", "3d",
+    "photorealistic", "pbr", "materials", "lighting", "post-processing"
   ]
 }
