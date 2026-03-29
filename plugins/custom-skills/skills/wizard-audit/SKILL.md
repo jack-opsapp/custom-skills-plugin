@@ -26,13 +26,24 @@ Read the wizard's definition file from `OPS/OPS/Wizard/Definitions/`. Extract:
 - Every step: `id`, `instruction`, `completionNotification`, `canSkip`, `targetScreen`
 - Trigger type (sequenced, contextual, data-condition) and trigger context
 
-### Phase 2: Trace Every Notification Source
+### Phase 2: Verify Instruction Text Matches Actual UI
+
+For EACH step, compare the `instruction` text against the ACTUAL UI element the user must interact with:
+
+- **Button labels:** Read the actual button/menu item label from the source code. If the instruction says `TAP "CREATE CLIENT"` but the button label is `"New Client"`, that's a mismatch. Always grep for the element's label/title string.
+- **Icon references:** If the instruction references an icon (e.g., "the + button"), verify the actual SF Symbol name in the code. The FAB uses `"bolt"` (lightning bolt), not `"plus"`.
+- **Element types:** If the instruction says "tap" but the element is a text field, the instruction should say "enter" or "type."
+
+Flag every mismatch as HIGH severity.
+
+### Phase 3: Trace Every Notification Source
 
 For each step's `completionNotification`, grep the codebase to find EXACTLY where it is posted. Record:
 
 - File and line number where `NotificationCenter.default.post(name: ...)` fires
 - What user action or view lifecycle event triggers it
 - Whether the notification can fire from an unexpected location (e.g., a different tab or sheet)
+- **For text input steps:** Does the notification fire on first keystroke (wrong — user hasn't finished typing), on keyboard dismiss / field deselect (correct), or on form save (correct for save steps)? Text input completion must fire on `.onSubmit` or `.onChange(of: focusedField)`, NEVER on `.onChange(of: text)` transitioning from empty to non-empty.
 
 ### Phase 3: Role-Permission Matrix
 
@@ -67,7 +78,55 @@ Determine what must be true BEFORE the wizard can start. Check against local Swi
 | **Role validity** | Should `unassigned` role users see this wizard? (Usually no.) |
 | **Concurrent wizards** | Could another wizard be active? (Only one at a time.) |
 
-### Phase 5: Per-Step War Game
+### Phase 5: Verify Wizard Target Glow on Every Element
+
+For EACH step, verify the target UI element has `.wizardTarget()` applied with the correct style:
+
+| Element type | Required modifier | Example |
+|---|---|---|
+| Button / tappable area | `.wizardTarget("step_id")` | Save button, menu item |
+| Circular element (FAB) | `.wizardTarget(style: .circle, "step_id")` | FAB, avatar button |
+| Text field / input | `.wizardTarget("step_id", style: .input)` | Name field, search field |
+| List row / card | `.wizardTarget("step_id", style: .row)` | Settings row, project card |
+| Toolbar button (UIKit nav bar) | Cannot apply — document as known limitation | Save/Create in toolbar |
+
+**How to verify:**
+1. Grep for `.wizardTarget("step_id")` in the codebase
+2. If not found, identify the exact view that the user interacts with for this step
+3. Determine the correct style based on element type
+4. Flag missing targets as HIGH severity
+
+**Architecture note:** The `WizardTargetModifier` uses an inner `@ObservedObject` view to observe `WizardStateManager` (which is `ObservableObject` passed via `@Environment`). If someone passes the state manager through `@Environment` without the `@ObservedObject` bridge pattern, the glow will silently fail to appear. Check that `WizardTargetModifier` uses the two-layer pattern (outer modifier reads environment, inner view uses `@ObservedObject`).
+
+**Scroll-to-target:** Each form that contains wizard targets inside a `ScrollView` must have:
+1. `ScrollViewReader` wrapping the content
+2. `.onReceive(NotificationCenter.default.publisher(for: Notification.Name("WizardScrollToTarget")))` listener
+3. The listener scrolls to `"wizard_active_\(stepId)"` with `.top` anchor
+If missing, the target element may be off-screen when the step activates.
+
+### Phase 6: Verify Exit Wizard Triggers
+
+For EACH `targetScreen` value used in the wizard's steps, verify that a `WizardScreenDismissed` notification is posted when that screen closes:
+
+| targetScreen | Where dismissal must be posted | How to check |
+|---|---|---|
+| `"FABMenu"` | `FloatingActionMenu.swift` — `.onChange(of: showCreateMenu)` when menu closes | Grep for `WizardScreenDismissed.*FABMenu` |
+| `"ProjectDetails"` | `ProjectDetailsView.swift` — `.onDisappear` | Grep for `WizardScreenDismissed.*ProjectDetails` |
+| `"ClientForm"`, `"ProjectForm"`, `"TaskForm"` | The respective sheet's dismiss path | Grep for `WizardScreenDismissed.*<screen>` |
+
+**Key pattern:** When the user is on a step with `targetScreen: "FABMenu"` and taps the WRONG menu item (or closes the menu), the exit prompt must fire. This requires:
+1. The FAB menu posts `WizardScreenDismissed` with `screen: "FABMenu"` when `showCreateMenu` transitions from true to false
+2. A short delay (~150ms) before posting, so completion notifications from the CORRECT action process first
+
+If a `targetScreen` value has no corresponding dismissal notification, the exit prompt will never fire for that screen, leaving the user stuck with no way to exit except the instruction bar EXIT button.
+
+**Also verify:** The exit prompt dialog buttons are interactive. The dialog must use a layered approach:
+- Scrim: `.allowsHitTesting(false)` (visual only)
+- Dismiss layer: `Color.clear` with `.contentShape(Rectangle())` + `.onTapGesture` (behind dialog)
+- Dialog card: `.contentShape(Rectangle())` (blocks taps from reaching dismiss layer)
+If the scrim has `.onTapGesture` directly, it will swallow button taps from the dialog.
+
+### Phase 7: Per-Step War Game
 
 For EACH step, systematically evaluate every scenario below. Use the reference checklist in `references/step-checklist.md`.
 
@@ -96,7 +155,34 @@ For EACH step, systematically evaluate every scenario below. Use the reference c
 - What if network is offline during a step that modifies server data?
 - What if another user changes the data the wizard references (sync conflict)?
 
-### Phase 6: Cross-Cutting Concerns
+### Phase 8: Verify OPSStyle Compliance
+
+All wizard UI must use `OPSStyle.Wizard` tokens and follow OPS design system rules:
+
+**Color compliance:**
+- All wizard accent colors must use `OPSStyle.Colors.wizardAccent` (tactical orange #EB8C26)
+- NEVER use `OPSStyle.Colors.primaryAccent` (blue-gray #597794) in wizard views
+- Grep all files in `OPS/OPS/Wizard/Views/` for `primaryAccent` — any occurrence is a bug
+
+**Text alignment:**
+- All wizard text must be LEFT-ALIGNED. No `.multilineTextAlignment(.center)` in wizard views
+- No centered decorative icons above text. OPS aesthetic is military tactical minimalist — nothing decorative
+
+**Instruction bar:**
+- Must be full-bleed: background extends into bottom safe area via `.ignoresSafeArea(edges: .bottom)`
+- Background uses `BlurView(style: .systemUltraThinMaterialDark)` with `OPSStyle.Colors.cardBackgroundDark.opacity(0.9)` overlay
+- Progress bar uses `OPSStyle.Colors.wizardAccent`
+- EXIT and SKIP buttons must NOT be blocked by parent tap gestures — verify that paused and active states are separate view branches
+
+**Exit prompt dialog:**
+- Left-aligned text, no centered icon
+- Uses `BlurView` background with dark overlay, matching instruction bar
+- Uses `OPSStyle.Layout.cardCornerRadius` and `OPSStyle.Layout.Border.standard`
+- Buttons must be interactive (see Phase 6 for the layered touch handling pattern)
+
+**Glow tokens:** All glow parameters are centralized in `OPSStyle.Wizard` (Button, Circle, Input, Row). Verify the modifier reads from these tokens, not hardcoded values.
+
+### Phase 9: Cross-Cutting Concerns
 
 Evaluate these system-level scenarios that apply to ALL wizards:
 
@@ -107,11 +193,13 @@ Evaluate these system-level scenarios that apply to ALL wizards:
 | **App lifecycle** | Does `WizardState` persist correctly on background/kill? Does the wizard resume at the correct step? |
 | **Cooldown interaction** | After "NOT NOW" (2-tap cooldown) or "NEVER" (48hr + do-not-show), does the wizard correctly suppress? |
 | **Analytics** | Are all events tracked? (banner_shown, started, step_completed, step_skipped, abandoned, completed) |
-| **Instruction bar layout** | Does the bar conflict with the tab bar, FAB, or keyboard? |
+| **Instruction bar layout** | Does the bar conflict with the tab bar, FAB, or keyboard? Is it full-bleed (background ignores bottom safe area)? |
 | **Haptic feedback** | Do step completions fire appropriate haptics? |
 | **Tutorial system conflict** | Could the 25-phase tutorial be active simultaneously? |
+| **WizardTargetModifier observability** | Does the modifier use `@ObservedObject` to observe state changes? (Environment-only `WizardStateManager` won't trigger SwiftUI updates — the modifier must use the two-layer bridge pattern.) |
+| **Scroll-to-target** | Do forms with wizard targets inside ScrollViews have `ScrollViewReader` + `WizardScrollToTarget` listener wired up? |
 
-### Phase 7: Output the Audit Report
+### Phase 10: Output the Audit Report
 
 Structure the report as follows:
 
@@ -161,12 +249,20 @@ These facts apply to ALL wizard audits:
 - **Crew default tab is MY TASKS** on the job board, not projects
 - **Scoped visibility**: crew sees only assigned projects/tasks. "Has projects" means "has assigned projects"
 - **Operator** can see all projects but edit only assigned ones (scope=assigned)
+- **FAB icon is a lightning bolt** (`"bolt"`), NOT a plus sign. Instructions must say "ACTION BUTTON" not "+ button"
+- **FAB menu items are labeled "New X"** (e.g., "New Project", "New Client"), NOT "Create X"
 - **FAB visibility varies by role** — crew only sees FAB on Schedule tab
 - **Swipe-to-change-status** requires `projects.edit` (projects) or `tasks.change_status` (tasks)
 - **Feature flags** can disable entire features at runtime
 - **Wizards are offline-first** — all checks use local SwiftData
 - **Real data, not demo data** — wizards operate on actual user data
 - **Only one wizard active at a time** — `WizardStateManager` enforces this
+- **Wizard accent color is orange** (`OPSStyle.Colors.wizardAccent` / #EB8C26) — never use `primaryAccent` in wizard views
+- **WizardStateManager is ObservableObject via @Environment** — modifiers MUST use `@ObservedObject` bridge pattern or the glow silently fails
+- **All wizard glow tokens are centralized** in `OPSStyle.Wizard` (Button, Circle, Input, Row sub-enums)
+- **Toolbar buttons cannot receive `.wizardTarget()`** — UIKit-managed navigation bar items don't support SwiftUI view modifiers. Document as known limitation; instruction text must guide the user
+- **Instruction bar must be full-bleed** — background ignores bottom safe area
+- **Text input step completion fires on keyboard dismiss or field deselect** — NEVER on first keystroke
 
 ## Additional Resources
 
