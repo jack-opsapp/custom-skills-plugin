@@ -36,7 +36,33 @@ For EACH step, compare the `instruction` text against the ACTUAL UI element the 
 
 Flag every mismatch as HIGH severity.
 
-### Phase 3: Trace Every Notification Source
+### Phase 3: Trace the Complete User Flow (Missing Step Detection)
+
+This is the most critical phase. The wizard definition says what steps exist, but it may be MISSING steps the user must actually perform. Read every form/view the wizard touches and trace the actual user flow.
+
+**For EACH form the wizard enters (e.g., ClientForm, ProjectForm, TaskForm):**
+
+1. **Read the form's `isValid` / save-button-enabled logic.** Identify every field that must be non-nil or non-empty for the form to be saveable. If the wizard doesn't have a step for a REQUIRED field, the user gets stuck with a disabled Save/Create button. Flag as CRITICAL.
+
+2. **Read the form's body layout and evaluate semantic completeness.** Walk through every section and field in visual order. For each field, ask TWO questions:
+   - **"Does the wizard guide the user through this?"** — If a required field has no wizard step, the Save button is disabled. CRITICAL.
+   - **"Does it make sense to save without this?"** — Even if the form PERMITS saving without a field, the wizard is teaching a new user the correct workflow. If the wizard skips a field that a user would normally fill (task type, dates, description, status), the result is a half-built record that misrepresents how the product should be used. Flag omissions that produce low-quality data as HIGH — the wizard is a teaching tool, not just a form-filler.
+
+   Examples: A project without tasks is technically valid but useless. A task without a task type saves but renders as "Unknown Task" on the board. A project with no dates can't appear on the calendar. Ask: "If a new user creates this entity following only the wizard steps, will they see a complete, useful result?"
+
+3. **Check for collapsed/hidden sections.** If a wizard target is inside an `ExpandableSection` (or similar collapsible container), check its default expanded state:
+   - Read the `@State` variable controlling expansion (e.g., `isTasksExpanded`)
+   - If it defaults to `false` in create mode, the wizard target is INVISIBLE
+   - Flag as CRITICAL — the wizard must either add a step to expand the section OR auto-expand it via a `WizardStepChanged` listener
+
+4. **Check for form-to-form transitions.** When the wizard's steps span multiple stacked sheets (e.g., ProjectForm → TaskForm → back to ProjectForm), verify:
+   - There IS a step to CLOSE/SAVE each inner form before the wizard references the outer form
+   - The instruction text for "save" steps SPECIFIES WHICH FORM to save (e.g., "SAVE THE TASK" vs "SAVE THE PROJECT") — otherwise the user sees two "Create" buttons and doesn't know which one the wizard means
+   - Flag ambiguous "TAP CREATE" instructions as HIGH severity when multiple forms are stacked
+
+5. **Check for permission-gated sub-elements within forms.** A form may be accessible but individual fields within it may be hidden by permission checks. If a wizard step targets a field that's conditionally rendered based on a permission the wizard doesn't check, flag as CRITICAL.
+
+### Phase 4: Trace Every Notification Source
 
 For each step's `completionNotification`, grep the codebase to find EXACTLY where it is posted. Record:
 
@@ -45,7 +71,7 @@ For each step's `completionNotification`, grep the codebase to find EXACTLY wher
 - Whether the notification can fire from an unexpected location (e.g., a different tab or sheet)
 - **For text input steps:** Does the notification fire on first keystroke (wrong — user hasn't finished typing), on keyboard dismiss / field deselect (correct), or on form save (correct for save steps)? Text input completion must fire on `.onSubmit` or `.onChange(of: focusedField)`, NEVER on `.onChange(of: text)` transitioning from empty to non-empty.
 
-### Phase 3: Role-Permission Matrix
+### Phase 5: Role-Permission Matrix
 
 Build a matrix of every role against every step. Consult these sources of truth:
 
@@ -64,21 +90,21 @@ For each step, determine:
 | Can the role navigate to the `targetScreen`? | Check tab bar config and section picker visibility |
 | Is the data the step references visible to this role? | Check scope filtering (all vs assigned vs own) |
 
-### Phase 4: Prerequisites Analysis
+### Phase 6: Prerequisites Analysis
 
 Determine what must be true BEFORE the wizard can start. Check against local SwiftData (wizards are offline-first).
 
 | Prerequisite Category | Questions to Answer |
 |---|---|
 | **Data existence** | Does the user have the entities the wizard references? (projects, tasks, clients, inventory items, etc.) For scoped roles, check ASSIGNED entity count, not total. |
-| **Permission gates** | Does the user have every non-skippable step's required permission? If not, is the wizard still meaningful with those steps auto-skipped? |
+| **Permission gates (compound)** | The wizard's `requiredPermission` is a SINGLE permission, but individual steps may need ADDITIONAL permissions not checked at the wizard level (e.g., wizard gates on `projects.create` but step 2 needs `clients.create` for the FAB menu item). Walk EVERY non-skippable step and list the permission it actually requires. If ANY step needs a permission beyond the wizard's gate, either add it as a prerequisite check in `WizardTriggerService` or make the step `canSkip: true` with auto-skip logic. Flag missing compound checks as CRITICAL. |
 | **Feature flags** | Is the target feature behind a feature flag? Could it be disabled? |
 | **Subscription state** | Could the user be in grace period or expired state? |
 | **Onboarding state** | Has the user completed the 25-phase interactive tutorial? Could demo data still exist? |
 | **Role validity** | Should `unassigned` role users see this wizard? (Usually no.) |
 | **Concurrent wizards** | Could another wizard be active? (Only one at a time.) |
 
-### Phase 5: Verify Wizard Target Glow on Every Element
+### Phase 7: Verify Wizard Target Glow on Every Element
 
 For EACH step, verify the target UI element has `.wizardTarget()` applied with the correct style:
 
@@ -104,7 +130,7 @@ For EACH step, verify the target UI element has `.wizardTarget()` applied with t
 3. The listener scrolls to `"wizard_active_\(stepId)"` with `.top` anchor
 If missing, the target element may be off-screen when the step activates.
 
-### Phase 6: Verify Exit Wizard Triggers
+### Phase 8: Verify Exit Wizard Triggers
 
 For EACH `targetScreen` value used in the wizard's steps, verify that a `WizardScreenDismissed` notification is posted when that screen closes:
 
@@ -126,7 +152,7 @@ If a `targetScreen` value has no corresponding dismissal notification, the exit 
 - Dialog card: `.contentShape(Rectangle())` (blocks taps from reaching dismiss layer)
 If the scrim has `.onTapGesture` directly, it will swallow button taps from the dialog.
 
-### Phase 7: Per-Step War Game
+### Phase 9: Per-Step War Game
 
 For EACH step, systematically evaluate every scenario below. Use the reference checklist in `references/step-checklist.md`.
 
@@ -155,7 +181,7 @@ For EACH step, systematically evaluate every scenario below. Use the reference c
 - What if network is offline during a step that modifies server data?
 - What if another user changes the data the wizard references (sync conflict)?
 
-### Phase 8: Verify OPSStyle Compliance
+### Phase 10: Verify OPSStyle Compliance
 
 All wizard UI must use `OPSStyle.Wizard` tokens and follow OPS design system rules:
 
@@ -182,7 +208,7 @@ All wizard UI must use `OPSStyle.Wizard` tokens and follow OPS design system rul
 
 **Glow tokens:** All glow parameters are centralized in `OPSStyle.Wizard` (Button, Circle, Input, Row). Verify the modifier reads from these tokens, not hardcoded values.
 
-### Phase 9: Cross-Cutting Concerns
+### Phase 11: Cross-Cutting Concerns
 
 Evaluate these system-level scenarios that apply to ALL wizards:
 
@@ -198,8 +224,9 @@ Evaluate these system-level scenarios that apply to ALL wizards:
 | **Tutorial system conflict** | Could the 25-phase tutorial be active simultaneously? |
 | **WizardTargetModifier observability** | Does the modifier use `@ObservedObject` to observe state changes? (Environment-only `WizardStateManager` won't trigger SwiftUI updates — the modifier must use the two-layer bridge pattern.) |
 | **Scroll-to-target** | Do forms with wizard targets inside ScrollViews have `ScrollViewReader` + `WizardScrollToTarget` listener wired up? |
+| **Collapsed sections** | Are any wizard targets inside `ExpandableSection`s that default to collapsed? If so, is there a `WizardStepChanged` listener that auto-expands the section when the step activates? |
 
-### Phase 10: Output the Audit Report
+### Phase 12: Output the Audit Report
 
 Structure the report as follows:
 
@@ -263,6 +290,9 @@ These facts apply to ALL wizard audits:
 - **Toolbar buttons cannot receive `.wizardTarget()`** — UIKit-managed navigation bar items don't support SwiftUI view modifiers. Document as known limitation; instruction text must guide the user
 - **Instruction bar must be full-bleed** — background ignores bottom safe area
 - **Text input step completion fires on keyboard dismiss or field deselect** — NEVER on first keystroke
+- **ProjectForm has collapsible optional sections** — TASKS, DESCRIPTION, NOTES, PHOTOS are all inside `ExpandableSection` containers that default to collapsed in create mode (`isTasksExpanded = false`). Any wizard step targeting elements inside these sections MUST auto-expand the section via a `WizardStepChanged` listener, or the target is invisible
+- **TaskForm requires task type for validity** — `isValid` returns `false` without `selectedTaskTypeId`. Any wizard that enters the task form MUST include a step for task type selection, or the Create button is permanently disabled
+- **Multi-sheet stacking is common** — ProjectForm presents TaskForm as a sheet. When wizard steps span both forms, instructions must disambiguate which form's Create/Save button to tap. "TAP CREATE" is ambiguous when two forms are stacked
 
 ## Additional Resources
 
